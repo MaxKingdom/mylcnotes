@@ -5,5 +5,103 @@ Leeccode-215 数组中第K大元素 暴力法、堆排序、快速排序
 暴力法：排序取倒数第k个元素（从小到大排序）
 
 堆排序：1 最大堆 pop  2 只有k个元素的最小堆
+  1
+  
+  
+  
+  
+  2   from heapq import heapify,heappush,heappop
+      def findkthLargest(self,nums:List[int],k:int) -> int:
+        minheap=[]
+        heapify(minheap)  ##将列表转换为堆结构 非必须
+        for num in nums:
+          heappush(minheap,num)
+          if len(minheap)>k:
+            heappop(minheap)
+        return minheap[0]  ##注意这里是0
+        
+        
+      手写堆：
+          def findKthLargest(self, nums: List[int], k: int) -> int:
+        heap=Heap(k+1)
+        for num in nums:
+            if not heap.push(num):
+                heap.pop()
+                heap.push(num)
+            if heap.size==k+1:  ##注意这里还要加上这个  因为如果是最后一个数 需要再pop
+                heap.pop()
+        return heap.peek()
+    
+class Heap:
+    def __init__(self,length):
+        self.heap=[0]*(length+1)
+        self.size=0
+    def push(self,val):
+        if self.size==len(self.heap)-1:
+            return False
+        self.size+=1
+        self.heap[self.size]=val
+        self.shiftup(self.size)
+        return True
+    def pop(self):
+            # val=self.heap[1]
+        self.heap[1]=self.heap[self.size]
+        self.heap[self.size]=0
+        self.size-=1
+        self.shiftdown(1)
+    def shiftup(self,i):
+        
+        while int(i/2) >0:
+            parent=int(i/2)
+            if self.heap[parent]>self.heap[i]:
+                self.heap[i],self.heap[parent]=self.heap[parent],self.heap[i]
+                i=parent
+            else:
+                break
 
+    def shiftdown(self,i):
+        
+        while int(i*2)<=self.size:
+            child=int(i*2)
+            if child!=self.size and self.heap[child+1]<self.heap[child]:
+                child+=1
+            if self.heap[i]>self.heap[child]:
+                self.heap[i],self.heap[child]=self.heap[child],self.heap[i]
+                i=child
+            else:
+                break
+        
+    def peek(self):
+        return self.heap[1]
+    
+       
 
+快速排序：大的放左边，小的放右边  k=下标+1
+
+import random
+class Solution:
+    def findKthLargest(self, nums: List[int], k: int) -> int:  ##注意self的用法
+        return self.quicksort(nums,0,len(nums)-1,k)
+
+    def quicksort(self,nums,left,right,k):
+        index=self.randompartition(nums,left,right)
+        if index==k-1:
+            return nums[index]
+        if index>k-1:
+            return self.quicksort(nums,left,index-1,k)  ##注意index-1 和 index+1
+        else:
+            return self.quicksort(nums,index+1,right,k)
+    
+    def randompartition(self,nums,left,right):
+        p=random.randint(left,right)
+        nums[left],nums[p]=nums[p],nums[left]
+        i=left
+        j=right
+        while i<j:
+            while i<j and nums[j]<nums[left]:           ##注意谁先走谁后走
+                j-=1
+            while i<j and nums[i]>=nums[left]:
+                i+=1
+            nums[i],nums[j]=nums[j],nums[i]
+        nums[left],nums[j]=nums[j],nums[left]
+        return j
